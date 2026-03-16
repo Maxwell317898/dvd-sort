@@ -5,26 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DiscVault — Your Collection</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/zxing-js/0.20.0/zxing.min.js"></script>
 <style>
   :root {
     --navy: #0d1117;
     --navy-mid: #161d2a;
     --navy-light: #1e2a3d;
     --amber: #d4a843;
-    --amber-dim: #a07c2a;
     --amber-glow: rgba(212,168,67,0.15);
     --cream: #f0e6d0;
-    --cream-dim: #c8b898;
     --red: #c0392b;
     --blue-ray: #2980b9;
     --text: #e8dcc8;
     --text-dim: #8a7a68;
     --border: rgba(212,168,67,0.2);
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
   body {
     background: var(--navy);
     color: var(--text);
@@ -36,747 +32,264 @@
       repeating-linear-gradient(90deg, transparent, transparent 49px, rgba(212,168,67,0.03) 50px);
   }
 
-  /* ── HEADER ── */
   header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 24px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 40px;
     border-bottom: 1px solid var(--border);
-    background: rgba(13,17,23,0.9);
-    position: sticky;
-    top: 0;
-    z-index: 100;
+    background: rgba(13,17,23,0.92);
+    position: sticky; top: 0; z-index: 100;
     backdrop-filter: blur(12px);
   }
-
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-
+  .logo { display: flex; align-items: center; gap: 14px; }
   .logo-icon {
-    width: 42px; height: 42px;
-    background: var(--amber);
-    border-radius: 50%;
+    width: 40px; height: 40px; background: var(--amber); border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    position: relative;
-    box-shadow: 0 0 20px rgba(212,168,67,0.4);
+    box-shadow: 0 0 20px rgba(212,168,67,0.4); position: relative;
   }
+  .logo-icon::before { content:''; width:13px; height:13px; background:var(--navy); border-radius:50%; position:absolute; }
+  .logo-icon::after { content:''; width:36px; height:36px; border:2px solid rgba(212,168,67,0.3); border-radius:50%; position:absolute; }
+  .logo h1 { font-family:'Playfair Display',serif; font-size:1.7rem; font-weight:900; color:var(--cream); }
+  .logo h1 span { color:var(--amber); }
+  .stats { display:flex; gap:28px; font-family:'DM Mono',monospace; font-size:0.72rem; color:var(--text-dim); }
+  .stat-item { text-align:center; }
+  .stat-num { display:block; font-size:1.3rem; color:var(--amber); font-weight:500; line-height:1; }
 
-  .logo-icon::before {
-    content: '';
-    width: 14px; height: 14px;
-    background: var(--navy);
-    border-radius: 50%;
-    position: absolute;
-  }
+  .container { max-width:1200px; margin:0 auto; padding:32px 40px; }
 
-  .logo-icon::after {
-    content: '';
-    width: 38px; height: 38px;
-    border: 2px solid rgba(212,168,67,0.3);
-    border-radius: 50%;
-    position: absolute;
-  }
-
-  .logo h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.8rem;
-    font-weight: 900;
-    letter-spacing: -0.5px;
-    color: var(--cream);
-  }
-
-  .logo h1 span { color: var(--amber); }
-
-  .stats {
-    display: flex;
-    gap: 32px;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.75rem;
-    color: var(--text-dim);
-  }
-
-  .stat-item { text-align: center; }
-  .stat-num {
-    display: block;
-    font-size: 1.4rem;
-    color: var(--amber);
-    font-weight: 500;
-    line-height: 1;
-  }
-
-  /* ── MAIN LAYOUT ── */
-  .container { max-width: 1200px; margin: 0 auto; padding: 32px 40px; }
-
-  /* ── TOOLBAR ── */
-  .toolbar {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 32px;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-
-  .search-wrap {
-    flex: 1;
-    min-width: 200px;
-    position: relative;
-  }
-
+  .toolbar { display:flex; gap:12px; margin-bottom:28px; flex-wrap:wrap; align-items:center; }
+  .search-wrap { flex:1; min-width:200px; position:relative; }
   .search-wrap input {
-    width: 100%;
-    background: var(--navy-light);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 12px 16px 12px 44px;
-    border-radius: 8px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.9rem;
-    outline: none;
-    transition: border-color 0.2s;
+    width:100%; background:var(--navy-light); border:1px solid var(--border);
+    color:var(--text); padding:12px 16px 12px 44px; border-radius:8px;
+    font-family:'DM Sans',sans-serif; font-size:0.9rem; outline:none; transition:border-color 0.2s;
   }
-
-  .search-wrap input:focus { border-color: var(--amber); }
-
-  .search-icon {
-    position: absolute;
-    left: 14px; top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-dim);
-    font-size: 1.1rem;
-  }
+  .search-wrap input:focus { border-color:var(--amber); }
+  .search-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--text-dim); font-size:1.1rem; }
 
   .btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 20px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.88rem;
-    font-weight: 500;
-    transition: all 0.2s;
-    white-space: nowrap;
+    display:flex; align-items:center; gap:8px; padding:12px 20px;
+    border-radius:8px; border:none; cursor:pointer;
+    font-family:'DM Sans',sans-serif; font-size:0.88rem; font-weight:500;
+    transition:all 0.2s; white-space:nowrap;
   }
+  .btn-primary { background:var(--amber); color:var(--navy); }
+  .btn-primary:hover { background:#e8bb55; transform:translateY(-1px); box-shadow:0 4px 16px rgba(212,168,67,0.3); }
+  .btn-ghost { background:var(--navy-light); color:var(--text); border:1px solid var(--border); }
+  .btn-ghost:hover { border-color:var(--amber); color:var(--amber); }
+  .btn-ghost.active { border-color:var(--amber); color:var(--amber); background:var(--amber-glow); }
+  .btn-sm { padding:8px 14px; font-size:0.8rem; }
+  .btn-danger { background:#4a1515; color:#ffaaaa; border:1px solid #7a2020; }
+  .btn-danger:hover { background:#c0392b; color:white; border-color:#c0392b; }
 
-  .btn-primary {
-    background: var(--amber);
-    color: var(--navy);
-  }
-  .btn-primary:hover { background: #e8bb55; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(212,168,67,0.3); }
-
-  .btn-ghost {
-    background: var(--navy-light);
-    color: var(--text);
-    border: 1px solid var(--border);
-  }
-  .btn-ghost:hover { border-color: var(--amber); color: var(--amber); }
-
-  .btn-ghost.active {
-    border-color: var(--amber);
-    color: var(--amber);
-    background: var(--amber-glow);
-  }
-
-  /* ── FILTER PILLS ── */
-  .filters {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-
-  .filter-label {
-    font-size: 0.75rem;
-    color: var(--text-dim);
-    font-family: 'DM Mono', monospace;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-right: 4px;
-  }
-
+  .filters { display:flex; gap:8px; margin-bottom:24px; flex-wrap:wrap; align-items:center; }
+  .filter-label { font-size:0.72rem; color:var(--text-dim); font-family:'DM Mono',monospace; text-transform:uppercase; letter-spacing:1px; margin-right:4px; }
   .pill {
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    cursor: pointer;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--text-dim);
-    transition: all 0.2s;
-    font-family: 'DM Sans', sans-serif;
+    padding:5px 13px; border-radius:20px; font-size:0.78rem; cursor:pointer;
+    border:1px solid var(--border); background:transparent; color:var(--text-dim);
+    transition:all 0.2s; font-family:'DM Sans',sans-serif;
   }
+  .pill:hover { border-color:var(--amber); color:var(--amber); }
+  .pill.active { background:var(--amber); color:var(--navy); border-color:var(--amber); font-weight:500; }
 
-  .pill:hover { border-color: var(--amber); color: var(--amber); }
-  .pill.active { background: var(--amber); color: var(--navy); border-color: var(--amber); font-weight: 500; }
-
-  /* ── COLLECTION GRID ── */
-  .section-header {
-    display: flex;
-    align-items: baseline;
-    gap: 12px;
-    margin-bottom: 12px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .section-letter {
-    font-family: 'Playfair Display', serif;
-    font-size: 2.5rem;
-    font-weight: 900;
-    color: var(--amber);
-    line-height: 1;
-    min-width: 40px;
-  }
-
-  .section-count {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.72rem;
-    color: var(--text-dim);
-  }
-
-  .collection-group { margin-bottom: 36px; }
-
-  .disc-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 16px;
-  }
+  .section-header { display:flex; align-items:baseline; gap:12px; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+  .section-letter { font-family:'Playfair Display',serif; font-size:2.4rem; font-weight:900; color:var(--amber); line-height:1; min-width:40px; }
+  .section-count { font-family:'DM Mono',monospace; font-size:0.7rem; color:var(--text-dim); }
+  .collection-group { margin-bottom:36px; }
+  .disc-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:14px; }
 
   .disc-card {
-    background: var(--navy-mid);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    overflow: hidden;
-    transition: all 0.25s;
-    cursor: pointer;
-    position: relative;
+    background:var(--navy-mid); border:1px solid var(--border);
+    border-radius:10px; overflow:hidden; transition:all 0.25s; cursor:pointer; position:relative;
   }
+  .disc-card:hover { transform:translateY(-3px); border-color:var(--amber); box-shadow:0 8px 24px rgba(0,0,0,0.4); }
 
-  .disc-card:hover {
-    transform: translateY(-3px);
-    border-color: var(--amber);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.4), 0 0 0 1px rgba(212,168,67,0.1);
-  }
-
-  .disc-thumb {
-    width: 100%;
-    aspect-ratio: 2/3;
-    background: var(--navy-light);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-  }
-
+  .disc-thumb { width:100%; aspect-ratio:2/3; position:relative; overflow:hidden; background:var(--navy-light); }
+  .disc-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
   .disc-thumb-placeholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    color: var(--text-dim);
+    width:100%; height:100%; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:8px; color:var(--text-dim);
   }
-
-  .disc-thumb-placeholder .disc-icon {
-    width: 52px; height: 52px;
-    border-radius: 50%;
-    border: 3px solid var(--text-dim);
-    display: flex; align-items: center; justify-content: center;
-    position: relative;
-  }
-
-  .disc-thumb-placeholder .disc-icon::before {
-    content: '';
-    width: 14px; height: 14px;
-    border-radius: 50%;
-    background: var(--navy-mid);
-    border: 2px solid var(--text-dim);
-  }
-
-  .disc-thumb-placeholder span { font-size: 0.7rem; font-family: 'DM Mono', monospace; }
+  .ph-disc { width:54px; height:54px; border-radius:50%; border:3px solid currentColor; display:flex; align-items:center; justify-content:center; }
+  .ph-disc::after { content:''; width:14px; height:14px; border-radius:50%; background:var(--navy-mid); border:2px solid currentColor; }
+  .disc-thumb-placeholder span { font-size:0.68rem; font-family:'DM Mono',monospace; }
 
   .disc-type-badge {
-    position: absolute;
-    top: 8px; right: 8px;
-    padding: 3px 8px;
-    border-radius: 4px;
-    font-size: 0.65rem;
-    font-weight: 700;
-    font-family: 'DM Mono', monospace;
-    letter-spacing: 0.5px;
+    position:absolute; top:7px; right:7px; padding:3px 7px;
+    border-radius:4px; font-size:0.62rem; font-weight:700;
+    font-family:'DM Mono',monospace; letter-spacing:0.5px;
   }
+  .badge-dvd { background:var(--red); color:white; }
+  .badge-bluray { background:var(--blue-ray); color:white; }
+  .badge-4k { background:#060614; color:#00d4ff; border:1px solid #00d4ff; }
+  .disc-pos { position:absolute; top:7px; left:7px; background:rgba(13,17,23,0.85); border:1px solid var(--border); border-radius:4px; padding:2px 6px; font-family:'DM Mono',monospace; font-size:0.62rem; color:var(--amber); }
 
-  .badge-dvd { background: var(--red); color: white; }
-  .badge-bluray { background: var(--blue-ray); color: white; }
-  .badge-4k { background: linear-gradient(135deg, #1a1a2e, #16213e); color: #00d4ff; border: 1px solid #00d4ff; }
+  .disc-info { padding:10px 12px; }
+  .disc-title { font-family:'Playfair Display',serif; font-size:0.88rem; font-weight:700; color:var(--cream); line-height:1.3; margin-bottom:3px; }
+  .disc-meta { font-size:0.7rem; color:var(--text-dim); font-family:'DM Mono',monospace; display:flex; gap:6px; flex-wrap:wrap; }
 
-  .disc-info {
-    padding: 12px;
-  }
+  .empty-state { text-align:center; padding:80px 20px; color:var(--text-dim); }
+  .empty-disc { width:80px; height:80px; border-radius:50%; border:3px dashed var(--border); display:flex; align-items:center; justify-content:center; margin:0 auto 20px; font-size:2rem; }
+  .empty-state h3 { font-family:'Playfair Display',serif; font-size:1.4rem; margin-bottom:8px; color:var(--text); }
+  .empty-state p { font-size:0.88rem; line-height:1.6; }
 
-  .disc-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: var(--cream);
-    line-height: 1.3;
-    margin-bottom: 4px;
-  }
+  .instructions-panel { background:var(--navy-mid); border:1px solid var(--border); border-radius:12px; margin-bottom:32px; overflow:hidden; display:none; }
+  .instructions-panel.open { display:block; }
+  .instructions-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; background:var(--amber-glow); border-bottom:1px solid var(--border); }
+  .instructions-header h3 { font-family:'Playfair Display',serif; font-size:1.05rem; color:var(--amber); }
+  .instructions-body { padding:18px 20px; }
+  .move-step { display:flex; gap:14px; padding:11px 0; border-bottom:1px solid rgba(212,168,67,0.07); align-items:flex-start; animation:fadeIn 0.3s ease both; }
+  .move-step:last-child { border-bottom:none; }
+  @keyframes fadeIn { from{opacity:0;transform:translateX(-6px)} to{opacity:1;transform:none} }
+  .step-num { width:26px; height:26px; border-radius:50%; background:var(--amber); color:var(--navy); display:flex; align-items:center; justify-content:center; font-family:'DM Mono',monospace; font-size:0.72rem; font-weight:700; flex-shrink:0; margin-top:2px; }
+  .step-text { font-size:0.86rem; line-height:1.5; }
+  .step-text strong { color:var(--amber); }
+  .step-text .dn { font-style:italic; color:var(--cream); }
+  .no-moves { text-align:center; padding:22px; color:var(--text-dim); font-size:0.86rem; }
+  .no-moves span { font-size:1.8rem; display:block; margin-bottom:8px; }
 
-  .disc-meta {
-    font-size: 0.72rem;
-    color: var(--text-dim);
-    font-family: 'DM Mono', monospace;
-    display: flex;
-    gap: 8px;
-  }
-
-  .disc-pos {
-    position: absolute;
-    bottom: 48px; left: 8px;
-    background: rgba(13,17,23,0.85);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 2px 7px;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--amber);
-  }
-
-  /* ── EMPTY STATE ── */
-  .empty-state {
-    text-align: center;
-    padding: 80px 20px;
-    color: var(--text-dim);
-  }
-
-  .empty-disc {
-    width: 80px; height: 80px;
-    border-radius: 50%;
-    border: 3px dashed var(--border);
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 20px;
-    font-size: 2rem;
-    color: var(--border);
-  }
-
-  .empty-state h3 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.4rem;
-    margin-bottom: 8px;
-    color: var(--text);
-  }
-
-  .empty-state p { font-size: 0.88rem; line-height: 1.6; }
-
-  /* ── MODAL ── */
   .modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.75);
-    backdrop-filter: blur(6px);
-    z-index: 200;
-    display: flex; align-items: center; justify-content: center;
-    padding: 20px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.25s;
+    position:fixed; inset:0; background:rgba(0,0,0,0.78);
+    backdrop-filter:blur(6px); z-index:200;
+    display:flex; align-items:center; justify-content:center; padding:20px;
+    opacity:0; pointer-events:none; transition:opacity 0.25s;
   }
-
-  .modal-overlay.open { opacity: 1; pointer-events: all; }
-
+  .modal-overlay.open { opacity:1; pointer-events:all; }
   .modal {
-    background: var(--navy-mid);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    width: 100%;
-    max-width: 520px;
-    max-height: 90vh;
-    overflow-y: auto;
-    transform: translateY(20px);
-    transition: transform 0.25s;
-    box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+    background:var(--navy-mid); border:1px solid var(--border); border-radius:16px;
+    width:100%; max-width:540px; max-height:92vh; overflow-y:auto;
+    transform:translateY(20px); transition:transform 0.25s;
+    box-shadow:0 24px 80px rgba(0,0,0,0.6);
   }
+  .modal-overlay.open .modal { transform:none; }
+  .modal-header { display:flex; align-items:center; justify-content:space-between; padding:22px 26px 18px; border-bottom:1px solid var(--border); }
+  .modal-header h2 { font-family:'Playfair Display',serif; font-size:1.3rem; color:var(--cream); }
+  .btn-close { background:none; border:none; color:var(--text-dim); cursor:pointer; font-size:1.4rem; line-height:1; transition:color 0.2s; }
+  .btn-close:hover { color:var(--amber); }
+  .modal-body { padding:22px 26px; }
+  .modal-footer { display:flex; gap:10px; justify-content:flex-end; padding:14px 26px 22px; }
 
-  .modal-overlay.open .modal { transform: translateY(0); }
-
-  .modal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 24px 28px 20px;
-    border-bottom: 1px solid var(--border);
+  .form-group { margin-bottom:15px; }
+  .form-group label { display:block; font-size:0.73rem; font-family:'DM Mono',monospace; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-dim); margin-bottom:5px; }
+  .form-group input, .form-group select, .form-group textarea {
+    width:100%; background:var(--navy-light); border:1px solid var(--border);
+    color:var(--text); padding:10px 13px; border-radius:8px;
+    font-family:'DM Sans',sans-serif; font-size:0.88rem; outline:none; transition:border-color 0.2s;
   }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color:var(--amber); }
+  .form-group select option { background:var(--navy-mid); }
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 
-  .modal-header h2 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.4rem;
-    color: var(--cream);
+  /* COVER */
+  .cover-upload-area {
+    border:2px dashed var(--border); border-radius:10px; padding:14px;
+    display:flex; gap:14px; align-items:center; cursor:pointer;
+    transition:border-color 0.2s; background:var(--navy-light); margin-bottom:16px;
   }
-
-  .btn-close {
-    background: none; border: none;
-    color: var(--text-dim); cursor: pointer;
-    font-size: 1.4rem; line-height: 1;
-    transition: color 0.2s;
-    padding: 4px;
+  .cover-upload-area:hover { border-color:var(--amber); }
+  .cover-preview {
+    width:66px; height:99px; border-radius:6px;
+    background:var(--navy); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--text-dim); font-size:1.6rem; flex-shrink:0; overflow:hidden;
   }
-  .btn-close:hover { color: var(--amber); }
+  .cover-preview img { width:100%; height:100%; object-fit:cover; display:block; }
+  .cover-upload-text h4 { font-size:0.86rem; color:var(--text); margin-bottom:3px; font-weight:500; }
+  .cover-upload-text p { font-size:0.73rem; color:var(--text-dim); line-height:1.4; }
+  #cover-file-input { display:none; }
 
-  .modal-body { padding: 24px 28px; }
-
-  .form-group { margin-bottom: 18px; }
-  .form-group label {
-    display: block;
-    font-size: 0.78rem;
-    font-family: 'DM Mono', monospace;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: var(--text-dim);
-    margin-bottom: 6px;
+  /* BARCODE */
+  .barcode-scanner-area {
+    border:2px dashed var(--border); border-radius:12px;
+    overflow:hidden; position:relative; background:#000;
+    min-height:230px; display:flex; align-items:center; justify-content:center;
+    margin-bottom:12px;
   }
-
-  .form-group input,
-  .form-group select,
-  .form-group textarea {
-    width: 100%;
-    background: var(--navy-light);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 11px 14px;
-    border-radius: 8px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.9rem;
-    outline: none;
-    transition: border-color 0.2s;
+  #barcode-video { width:100%; display:none; }
+  .barcode-overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; }
+  .barcode-frame {
+    width:260px; height:100px;
+    border:2px solid var(--amber); border-radius:6px; position:relative;
+    box-shadow:0 0 0 9999px rgba(0,0,0,0.52);
   }
+  .barcode-frame::before, .barcode-frame::after { content:''; position:absolute; width:20px; height:20px; border-color:var(--amber); border-style:solid; }
+  .barcode-frame::before { top:-2px; left:-2px; border-width:3px 0 0 3px; border-radius:3px 0 0 0; }
+  .barcode-frame::after  { bottom:-2px; right:-2px; border-width:0 3px 3px 0; border-radius:0 0 3px 0; }
+  .barcode-scan-line { position:absolute; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--amber),transparent); animation:scanLine 1.8s linear infinite; }
+  @keyframes scanLine { 0%{top:0} 100%{top:100%} }
+  .barcode-placeholder { text-align:center; color:var(--text-dim); padding:20px; }
+  .bc-icon { font-size:2.6rem; margin-bottom:8px; }
+  .barcode-result { background:rgba(212,168,67,0.1); border:1px solid var(--amber); border-radius:8px; padding:9px 13px; font-family:'DM Mono',monospace; font-size:0.76rem; color:var(--amber); word-break:break-all; margin-bottom:8px; display:none; }
+  .lookup-status { font-size:0.78rem; color:var(--text-dim); margin-bottom:10px; min-height:18px; font-family:'DM Mono',monospace; }
+  .lookup-status.found { color:#6dcc7e; }
+  .lookup-status.error { color:#e07070; }
 
-  .form-group input:focus,
-  .form-group select:focus,
-  .form-group textarea:focus { border-color: var(--amber); }
-
-  .form-group select option { background: var(--navy-mid); }
-
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-
-  .modal-footer {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-    padding: 16px 28px 24px;
+  /* DETAIL */
+  .detail-layout { display:flex; gap:18px; margin-bottom:18px; }
+  .detail-cover-img {
+    width:96px; height:144px; border-radius:8px;
+    background:var(--navy-light); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--text-dim); font-size:2rem; flex-shrink:0; overflow:hidden;
   }
+  .detail-cover-img img { width:100%; height:100%; object-fit:cover; display:block; }
+  .detail-right { flex:1; display:flex; flex-direction:column; justify-content:center; }
+  .detail-fields { display:grid; grid-template-columns:1fr 1fr; gap:11px; }
+  .detail-field label { font-family:'DM Mono',monospace; font-size:0.64rem; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-dim); display:block; margin-bottom:2px; }
+  .detail-field span { font-size:0.87rem; color:var(--cream); }
+  .detail-notes { background:var(--navy-light); border-radius:8px; padding:10px 13px; font-size:0.82rem; color:var(--text); line-height:1.5; font-style:italic; }
 
-  /* ── QR SCANNER ── */
-  .qr-scanner-area {
-    border: 2px dashed var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-    position: relative;
-    background: #000;
-    min-height: 260px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 16px;
-  }
+  .toast { position:fixed; bottom:28px; right:28px; background:var(--navy-mid); border:1px solid var(--amber); border-radius:10px; padding:12px 18px; display:flex; align-items:center; gap:10px; font-size:0.85rem; color:var(--text); box-shadow:0 8px 32px rgba(0,0,0,0.4); z-index:300; transform:translateY(80px); opacity:0; transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+  .toast.show { transform:none; opacity:1; }
 
-  #qr-video { width: 100%; display: none; }
+  ::-webkit-scrollbar { width:5px; }
+  ::-webkit-scrollbar-track { background:var(--navy); }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
 
-  .qr-overlay {
-    position: absolute; inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .qr-frame {
-    width: 180px; height: 180px;
-    border: 2px solid var(--amber);
-    border-radius: 8px;
-    position: relative;
-    box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);
-  }
-
-  .qr-frame::before, .qr-frame::after {
-    content: '';
-    position: absolute;
-    width: 24px; height: 24px;
-    border-color: var(--amber);
-    border-style: solid;
-  }
-
-  .qr-frame::before { top: -2px; left: -2px; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
-  .qr-frame::after  { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
-
-  .qr-scan-line {
-    position: absolute;
-    left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--amber), transparent);
-    animation: scanLine 2s linear infinite;
-  }
-
-  @keyframes scanLine {
-    0% { top: 0; }
-    100% { top: 100%; }
-  }
-
-  .qr-placeholder {
-    text-align: center;
-    color: var(--text-dim);
-    padding: 20px;
-  }
-
-  .qr-placeholder .qr-icon { font-size: 3rem; margin-bottom: 10px; }
-  .qr-placeholder p { font-size: 0.85rem; line-height: 1.5; }
-
-  .qr-result {
-    background: rgba(212,168,67,0.1);
-    border: 1px solid var(--amber);
-    border-radius: 8px;
-    padding: 12px 16px;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.8rem;
-    color: var(--amber);
-    word-break: break-all;
-    margin-bottom: 12px;
-    display: none;
-  }
-
-  /* ── SORT INSTRUCTIONS PANEL ── */
-  .instructions-panel {
-    background: var(--navy-mid);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    margin-bottom: 32px;
-    overflow: hidden;
-    display: none;
-  }
-
-  .instructions-panel.open { display: block; }
-
-  .instructions-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 22px;
-    background: var(--amber-glow);
-    border-bottom: 1px solid var(--border);
-  }
-
-  .instructions-header h3 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.1rem;
-    color: var(--amber);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .instructions-body { padding: 20px 22px; }
-
-  .move-step {
-    display: flex;
-    gap: 14px;
-    padding: 12px 0;
-    border-bottom: 1px solid rgba(212,168,67,0.08);
-    align-items: flex-start;
-    animation: fadeIn 0.3s ease both;
-  }
-
-  .move-step:last-child { border-bottom: none; }
-
-  @keyframes fadeIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
-
-  .step-num {
-    width: 28px; height: 28px;
-    border-radius: 50%;
-    background: var(--amber);
-    color: var(--navy);
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.75rem;
-    font-weight: 700;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-
-  .step-text { font-size: 0.88rem; line-height: 1.5; color: var(--text); }
-  .step-text strong { color: var(--amber); font-weight: 600; }
-  .step-text .disc-name { font-style: italic; color: var(--cream); }
-
-  .no-moves {
-    text-align: center;
-    padding: 24px;
-    color: var(--text-dim);
-    font-size: 0.88rem;
-  }
-
-  .no-moves span { font-size: 1.8rem; display: block; margin-bottom: 8px; }
-
-  /* ── TOAST ── */
-  .toast {
-    position: fixed;
-    bottom: 32px; right: 32px;
-    background: var(--navy-mid);
-    border: 1px solid var(--amber);
-    border-radius: 10px;
-    padding: 14px 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 0.88rem;
-    color: var(--text);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    z-index: 300;
-    transform: translateY(80px);
-    opacity: 0;
-    transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
-  }
-
-  .toast.show { transform: translateY(0); opacity: 1; }
-  .toast-icon { font-size: 1.2rem; }
-
-  /* ── VIEW DETAIL MODAL ── */
-  .detail-cover {
-    width: 100%;
-    aspect-ratio: 16/9;
-    background: var(--navy-light);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 20px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .detail-cover-disc {
-    width: 100px; height: 100px;
-    border-radius: 50%;
-    border: 6px solid var(--text-dim);
-    display: flex; align-items: center; justify-content: center;
-    position: relative;
-    box-shadow: 0 0 40px rgba(0,0,0,0.6);
-  }
-
-  .detail-cover-disc::before {
-    content: '';
-    width: 26px; height: 26px;
-    border-radius: 50%;
-    background: var(--navy-mid);
-    border: 3px solid var(--text-dim);
-  }
-
-  .detail-cover-disc.dvd { border-color: var(--red); }
-  .detail-cover-disc.dvd::before { border-color: var(--red); }
-  .detail-cover-disc.bluray { border-color: var(--blue-ray); }
-  .detail-cover-disc.bluray::before { border-color: var(--blue-ray); }
-  .detail-cover-disc.uhd { border-color: #00d4ff; }
-  .detail-cover-disc.uhd::before { border-color: #00d4ff; }
-
-  .detail-fields {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    margin-bottom: 20px;
-  }
-
-  .detail-field label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.68rem;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: var(--text-dim);
-    display: block;
-    margin-bottom: 3px;
-  }
-
-  .detail-field span {
-    font-size: 0.9rem;
-    color: var(--cream);
-  }
-
-  .detail-notes {
-    background: var(--navy-light);
-    border-radius: 8px;
-    padding: 12px 14px;
-    font-size: 0.85rem;
-    color: var(--text);
-    line-height: 1.5;
-    font-style: italic;
-  }
-
-  /* scrollbar */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: var(--navy); }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-  @media (max-width: 640px) {
-    header { padding: 16px 20px; }
-    .container { padding: 24px 20px; }
-    .stats { gap: 16px; }
-    .logo h1 { font-size: 1.4rem; }
-    .disc-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  @media(max-width:640px) {
+    header { padding:14px 18px; }
+    .container { padding:20px 16px; }
+    .stats { gap:14px; }
+    .logo h1 { font-size:1.3rem; }
+    .disc-grid { grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); }
+    .detail-layout { flex-direction:column; }
+    .detail-cover-img { width:100%; height:180px; }
   }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <header>
   <div class="logo">
     <div class="logo-icon"></div>
     <h1>Disc<span>Vault</span></h1>
   </div>
   <div class="stats">
-    <div class="stat-item">
-      <span class="stat-num" id="stat-total">0</span>
-      TOTAL
-    </div>
-    <div class="stat-item">
-      <span class="stat-num" id="stat-dvd">0</span>
-      DVD
-    </div>
-    <div class="stat-item">
-      <span class="stat-num" id="stat-bluray">0</span>
-      BLU-RAY
-    </div>
-    <div class="stat-item">
-      <span class="stat-num" id="stat-4k">0</span>
-      4K UHD
-    </div>
+    <div class="stat-item"><span class="stat-num" id="stat-total">0</span>TOTAL</div>
+    <div class="stat-item"><span class="stat-num" id="stat-dvd">0</span>DVD</div>
+    <div class="stat-item"><span class="stat-num" id="stat-bluray">0</span>BLU-RAY</div>
+    <div class="stat-item"><span class="stat-num" id="stat-4k">0</span>4K UHD</div>
   </div>
 </header>
 
-<!-- MAIN -->
 <div class="container">
 
-  <!-- TOOLBAR -->
   <div class="toolbar">
     <div class="search-wrap">
       <span class="search-icon">⌕</span>
       <input type="text" id="search-input" placeholder="Search your collection…" oninput="renderCollection()">
     </div>
     <button class="btn btn-ghost" id="btn-sort" onclick="toggleSortInstructions()">📋 Sort Guide</button>
-    <button class="btn btn-ghost" onclick="openQrModal()">📷 Scan QR</button>
+    <button class="btn btn-ghost" onclick="openScanModal()">📷 Scan Barcode</button>
     <button class="btn btn-primary" onclick="openAddModal()">＋ Add Disc</button>
   </div>
 
-  <!-- FILTERS -->
   <div class="filters">
     <span class="filter-label">Format:</span>
     <button class="pill active" data-filter="all" onclick="setFilter('all')">All</button>
     <button class="pill" data-filter="DVD" onclick="setFilter('DVD')">DVD</button>
     <button class="pill" data-filter="Blu-ray" onclick="setFilter('Blu-ray')">Blu-ray</button>
     <button class="pill" data-filter="4K UHD" onclick="setFilter('4K UHD')">4K UHD</button>
-    <span class="filter-label" style="margin-left:12px">Genre:</span>
+    <span class="filter-label" style="margin-left:10px">Genre:</span>
     <button class="pill active" data-genre="all" onclick="setGenre('all')">All</button>
     <button class="pill" data-genre="Action" onclick="setGenre('Action')">Action</button>
     <button class="pill" data-genre="Drama" onclick="setGenre('Drama')">Drama</button>
@@ -788,22 +301,16 @@
     <button class="pill" data-genre="Other" onclick="setGenre('Other')">Other</button>
   </div>
 
-  <!-- SORT INSTRUCTIONS PANEL -->
   <div class="instructions-panel" id="instructions-panel">
     <div class="instructions-header">
       <h3>🎬 Alphabetical Sort Guide — Step-by-Step Move Instructions</h3>
       <button class="btn-close" onclick="toggleSortInstructions()">×</button>
     </div>
-    <div class="instructions-body" id="instructions-body">
-      <div class="no-moves"><span>📀</span>Add some discs to generate sorting instructions.</div>
-    </div>
+    <div class="instructions-body" id="instructions-body"></div>
   </div>
 
-  <!-- COLLECTION -->
   <div id="collection-container"></div>
 </div>
-
-<!-- ──────────────────────── MODALS ──────────────────────── -->
 
 <!-- ADD DISC MODAL -->
 <div class="modal-overlay" id="add-modal">
@@ -813,6 +320,14 @@
       <button class="btn-close" onclick="closeModal('add-modal')">×</button>
     </div>
     <div class="modal-body">
+      <div class="cover-upload-area" onclick="document.getElementById('cover-file-input').click()">
+        <div class="cover-preview" id="add-cover-preview">🎬</div>
+        <div class="cover-upload-text">
+          <h4>Cover Image</h4>
+          <p>Click to upload from your device. Scanning a barcode will attempt to auto-fetch cover art.</p>
+        </div>
+      </div>
+      <input type="file" id="cover-file-input" accept="image/*" onchange="handleCoverUpload(event)">
       <div class="form-group">
         <label>Title *</label>
         <input type="text" id="add-title" placeholder="e.g. The Dark Knight">
@@ -852,7 +367,7 @@
       </div>
       <div class="form-group">
         <label>Notes</label>
-        <textarea id="add-notes" rows="2" placeholder="e.g. Special Edition, borrowed from…"></textarea>
+        <textarea id="add-notes" rows="2" placeholder="e.g. Special Edition, box set…"></textarea>
       </div>
     </div>
     <div class="modal-footer">
@@ -862,36 +377,37 @@
   </div>
 </div>
 
-<!-- QR SCANNER MODAL -->
-<div class="modal-overlay" id="qr-modal">
+<!-- BARCODE SCANNER MODAL -->
+<div class="modal-overlay" id="scan-modal">
   <div class="modal">
     <div class="modal-header">
-      <h2>📷 QR Code Scanner</h2>
-      <button class="btn-close" onclick="closeQrModal()">×</button>
+      <h2>📷 Barcode Scanner</h2>
+      <button class="btn-close" onclick="closeScanModal()">×</button>
     </div>
     <div class="modal-body">
-      <div class="qr-scanner-area" id="qr-scanner-area">
-        <video id="qr-video" playsinline></video>
-        <div class="qr-overlay" id="qr-overlay">
-          <div class="qr-placeholder">
-            <div class="qr-icon">▣</div>
-            <p>Press <strong>Start Camera</strong> to begin scanning.<br>Point at a QR code on your disc case.</p>
+      <div class="barcode-scanner-area">
+        <video id="barcode-video" playsinline></video>
+        <div class="barcode-overlay" id="barcode-overlay">
+          <div class="barcode-placeholder">
+            <div class="bc-icon">▥</div>
+            <p>Press <strong>Start Camera</strong> and point at the<br>barcode on your disc case spine or back.</p>
           </div>
         </div>
       </div>
-      <div class="qr-result" id="qr-result"></div>
-      <p style="font-size:0.82rem;color:var(--text-dim);margin-bottom:14px;line-height:1.5;">
-        Scan any QR code on a disc or case to pre-fill the title field. You can scan barcodes on spine labels, or custom QR codes you've printed for organisation.
+      <div class="barcode-result" id="barcode-result"></div>
+      <div class="lookup-status" id="lookup-status"></div>
+      <p style="font-size:0.78rem;color:var(--text-dim);margin-bottom:14px;line-height:1.5;">
+        Supports EAN-13 and UPC-A barcodes on DVD and Blu-ray cases. After scanning, the barcode is looked up to auto-fill the title and cover art.
       </p>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <button class="btn btn-primary" id="btn-start-cam" onclick="startCamera()">▶ Start Camera</button>
-        <button class="btn btn-ghost" id="btn-stop-cam" onclick="stopCamera()" style="display:none">⏹ Stop</button>
-        <button class="btn btn-ghost" onclick="manualQrEntry()">✏️ Enter Manually</button>
+        <button class="btn btn-primary" id="btn-start-scan" onclick="startBarcodeScanner()">▶ Start Camera</button>
+        <button class="btn btn-ghost" id="btn-stop-scan" onclick="stopBarcodeScanner()" style="display:none">⏹ Stop</button>
+        <button class="btn btn-ghost" onclick="manualBarcodeEntry()">✏️ Enter Barcode Manually</button>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeQrModal()">Close</button>
-      <button class="btn btn-primary" id="btn-use-qr" style="display:none" onclick="useQrResult()">Use This Title →</button>
+      <button class="btn btn-ghost" onclick="closeScanModal()">Close</button>
+      <button class="btn btn-primary" id="btn-use-barcode" style="display:none" onclick="useBarcodeResult()">Continue to Add Disc →</button>
     </div>
   </div>
 </div>
@@ -905,396 +421,371 @@
     </div>
     <div class="modal-body" id="view-modal-body"></div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" id="btn-delete-disc" onclick="deleteDisc()">🗑 Remove</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteDisc()">🗑 Remove</button>
       <button class="btn btn-ghost" onclick="closeModal('view-modal')">Close</button>
     </div>
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast">
   <span class="toast-icon">✓</span>
   <span id="toast-msg">Done!</span>
 </div>
 
 <script>
-// ─── STATE ───────────────────────────────────────────────
-let collection = JSON.parse(localStorage.getItem('discvault') || '[]');
-let activeFilter = 'all';
-let activeGenre = 'all';
+// ── STATE ─────────────────────────────────────────────────
+let collection = JSON.parse(localStorage.getItem('discvault_v2') || '[]');
+let activeFilter = 'all', activeGenre = 'all';
 let currentViewId = null;
-let qrStream = null;
-let qrScanning = false;
-let qrResult = '';
-
-// seed sample data if empty
-if (collection.length === 0) {
-  collection = [
-    { id: uid(), title: 'Aliens', format: 'Blu-ray', year: 1986, genre: 'Sci-Fi', director: 'James Cameron', notes: 'Director\'s Cut', pos: 1 },
-    { id: uid(), title: 'The Dark Knight', format: 'Blu-ray', year: 2008, genre: 'Action', director: 'Christopher Nolan', notes: '', pos: 2 },
-    { id: uid(), title: 'Jurassic Park', format: 'DVD', year: 1993, genre: 'Sci-Fi', director: 'Steven Spielberg', notes: '', pos: 3 },
-    { id: uid(), title: 'Pulp Fiction', format: 'Blu-ray', year: 1994, genre: 'Drama', director: 'Quentin Tarantino', notes: '', pos: 4 },
-    { id: uid(), title: 'Avengers: Endgame', format: '4K UHD', year: 2019, genre: 'Action', director: 'Russo Brothers', notes: '', pos: 5 },
-    { id: uid(), title: 'The Lion King', format: 'DVD', year: 1994, genre: 'Animation', director: 'Roger Allers', notes: '', pos: 6 },
-    { id: uid(), title: 'Inception', format: '4K UHD', year: 2010, genre: 'Sci-Fi', director: 'Christopher Nolan', notes: '', pos: 7 },
-    { id: uid(), title: 'Toy Story', format: 'DVD', year: 1995, genre: 'Animation', director: 'John Lasseter', notes: '', pos: 8 },
-  ];
-  save();
-}
+let barcodeScanning = false, barcodeStream = null;
+let pendingDisc = null;
+let pendingCoverDataUrl = null;
 
 function uid() { return Math.random().toString(36).substr(2,9); }
-function save() {
-  localStorage.setItem('discvault', JSON.stringify(collection));
-  updateStats();
-}
+function save() { localStorage.setItem('discvault_v2', JSON.stringify(collection)); updateStats(); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-// ─── STATS ───────────────────────────────────────────────
+// ── STATS ─────────────────────────────────────────────────
 function updateStats() {
   document.getElementById('stat-total').textContent = collection.length;
-  document.getElementById('stat-dvd').textContent = collection.filter(d=>d.format==='DVD').length;
+  document.getElementById('stat-dvd').textContent   = collection.filter(d=>d.format==='DVD').length;
   document.getElementById('stat-bluray').textContent = collection.filter(d=>d.format==='Blu-ray').length;
-  document.getElementById('stat-4k').textContent = collection.filter(d=>d.format==='4K UHD').length;
+  document.getElementById('stat-4k').textContent    = collection.filter(d=>d.format==='4K UHD').length;
 }
 
-// ─── FILTER / SORT ────────────────────────────────────────
+// ── FILTERS ───────────────────────────────────────────────
 function setFilter(f) {
   activeFilter = f;
-  document.querySelectorAll('[data-filter]').forEach(el => el.classList.toggle('active', el.dataset.filter===f));
+  document.querySelectorAll('[data-filter]').forEach(el=>el.classList.toggle('active',el.dataset.filter===f));
   renderCollection();
 }
-
 function setGenre(g) {
   activeGenre = g;
-  document.querySelectorAll('[data-genre]').forEach(el => el.classList.toggle('active', el.dataset.genre===g));
+  document.querySelectorAll('[data-genre]').forEach(el=>el.classList.toggle('active',el.dataset.genre===g));
   renderCollection();
 }
-
 function getFiltered() {
   const q = document.getElementById('search-input').value.toLowerCase();
   return collection
-    .filter(d => (activeFilter==='all' || d.format===activeFilter))
-    .filter(d => (activeGenre==='all' || d.genre===activeGenre))
+    .filter(d => activeFilter==='all' || d.format===activeFilter)
+    .filter(d => activeGenre==='all'  || d.genre===activeGenre)
     .filter(d => d.title.toLowerCase().includes(q) || (d.director||'').toLowerCase().includes(q))
     .sort((a,b) => sortKey(a).localeCompare(sortKey(b)));
 }
+function sortKey(d) { return d.title.replace(/^(the |a |an )/i,'').trim().toUpperCase(); }
 
-function sortKey(d) {
-  let t = d.title.replace(/^(the |a |an )/i,'').trim().toUpperCase();
-  return t;
-}
-
-// ─── RENDER ──────────────────────────────────────────────
+// ── RENDER ────────────────────────────────────────────────
 function renderCollection() {
   const filtered = getFiltered();
   const container = document.getElementById('collection-container');
-
-  if (filtered.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-disc">📀</div>
-        <h3>No discs found</h3>
-        <p>Try a different search or filter,<br>or add your first disc with the button above.</p>
-      </div>`;
+  if (!filtered.length) {
+    container.innerHTML = `<div class="empty-state">
+      <div class="empty-disc">📀</div>
+      <h3>${collection.length===0 ? 'Your vault is empty' : 'No discs match'}</h3>
+      <p>${collection.length===0 ? 'Add your first disc with the button above,<br>or scan a barcode to get started.' : 'Try a different search or filter.'}</p>
+    </div>`;
     return;
   }
-
-  // Group by first letter
   const groups = {};
-  filtered.forEach(d => {
-    const key = sortKey(d)[0] || '#';
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(d);
-  });
-
-  const sortedKeys = Object.keys(groups).sort();
-  container.innerHTML = sortedKeys.map(letter => `
+  filtered.forEach(d => { const k=sortKey(d)[0]||'#'; (groups[k]||(groups[k]=[])).push(d); });
+  container.innerHTML = Object.keys(groups).sort().map(letter => `
     <div class="collection-group">
       <div class="section-header">
         <span class="section-letter">${letter}</span>
         <span class="section-count">${groups[letter].length} disc${groups[letter].length!==1?'s':''}</span>
       </div>
-      <div class="disc-grid">
-        ${groups[letter].map(d => discCard(d)).join('')}
-      </div>
-    </div>
-  `).join('');
+      <div class="disc-grid">${groups[letter].map(discCard).join('')}</div>
+    </div>`).join('');
 }
 
 function discCard(d) {
-  const badge = d.format==='DVD' ? 'badge-dvd' : d.format==='Blu-ray' ? 'badge-bluray' : 'badge-4k';
-  const label = d.format==='4K UHD' ? '4K' : d.format;
-  return `
-    <div class="disc-card" onclick="viewDisc('${d.id}')">
-      <div class="disc-thumb">
-        <div class="disc-thumb-placeholder">
-          <div class="disc-icon"></div>
-          <span>${d.genre || ''}</span>
-        </div>
-        <span class="disc-type-badge ${badge}">${label}</span>
-        <span class="disc-pos">#${d.pos}</span>
+  const badge = d.format==='DVD'?'badge-dvd':d.format==='Blu-ray'?'badge-bluray':'badge-4k';
+  const label = d.format==='4K UHD'?'4K':d.format;
+  const thumb = d.cover
+    ? `<img src="${d.cover}" alt="${esc(d.title)}" loading="lazy">`
+    : `<div class="disc-thumb-placeholder"><div class="ph-disc"></div><span>${esc(d.genre||'')}</span></div>`;
+  return `<div class="disc-card" onclick="viewDisc('${d.id}')">
+    <div class="disc-thumb">
+      ${thumb}
+      <span class="disc-type-badge ${badge}">${label}</span>
+      <span class="disc-pos">#${d.pos}</span>
+    </div>
+    <div class="disc-info">
+      <div class="disc-title">${esc(d.title)}</div>
+      <div class="disc-meta">
+        ${d.year?`<span>${d.year}</span>`:''}
+        ${d.director?`<span>${esc(d.director.split(' ').pop())}</span>`:''}
       </div>
-      <div class="disc-info">
-        <div class="disc-title">${d.title}</div>
-        <div class="disc-meta">
-          ${d.year ? `<span>${d.year}</span>` : ''}
-          ${d.director ? `<span>${d.director.split(' ').pop()}</span>` : ''}
-        </div>
-      </div>
-    </div>`;
+    </div>
+  </div>`;
 }
 
-// ─── ADD DISC ────────────────────────────────────────────
-function openAddModal(prefillTitle='') {
-  document.getElementById('add-title').value = prefillTitle;
-  document.getElementById('add-year').value = '';
-  document.getElementById('add-notes').value = '';
+// ── COVER UPLOAD ──────────────────────────────────────────
+function handleCoverUpload(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    pendingCoverDataUrl = ev.target.result;
+    const prev = document.getElementById('add-cover-preview');
+    prev.innerHTML = `<img src="${pendingCoverDataUrl}">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── ADD DISC ──────────────────────────────────────────────
+function openAddModal(prefill={}) {
+  pendingCoverDataUrl = prefill.cover || null;
+  document.getElementById('add-title').value    = prefill.title    || '';
+  document.getElementById('add-year').value     = prefill.year     || '';
+  document.getElementById('add-director').value = prefill.director || '';
+  document.getElementById('add-notes').value    = prefill.notes    || '';
+  if (prefill.format) document.getElementById('add-format').value = prefill.format;
+  if (prefill.genre)  document.getElementById('add-genre').value  = prefill.genre;
+  const prev = document.getElementById('add-cover-preview');
+  prev.innerHTML = pendingCoverDataUrl ? `<img src="${pendingCoverDataUrl}">` : '🎬';
   openModal('add-modal');
-  setTimeout(()=>document.getElementById('add-title').focus(),200);
+  setTimeout(()=>document.getElementById('add-title').focus(), 200);
 }
 
 function addDisc() {
   const title = document.getElementById('add-title').value.trim();
-  if (!title) { showToast('⚠️', 'Please enter a title'); return; }
-  const disc = {
-    id: uid(),
-    title,
-    format: document.getElementById('add-format').value,
-    year: parseInt(document.getElementById('add-year').value)||null,
-    genre: document.getElementById('add-genre').value,
+  if (!title) { showToast('⚠️','Please enter a title'); return; }
+  collection.push({
+    id: uid(), title,
+    format:   document.getElementById('add-format').value,
+    year:     parseInt(document.getElementById('add-year').value)||null,
+    genre:    document.getElementById('add-genre').value,
     director: document.getElementById('add-director').value.trim(),
-    notes: document.getElementById('add-notes').value.trim(),
-    pos: collection.length + 1
-  };
-  collection.push(disc);
-  save();
-  closeModal('add-modal');
-  renderCollection();
-  showToast('📀', `"${title}" added to your vault`);
+    notes:    document.getElementById('add-notes').value.trim(),
+    cover:    pendingCoverDataUrl || null,
+    pos:      collection.length + 1
+  });
+  save(); closeModal('add-modal'); renderCollection();
+  showToast('📀', `"${title}" added`);
   if (document.getElementById('instructions-panel').classList.contains('open')) buildInstructions();
+  document.getElementById('cover-file-input').value = '';
+  pendingCoverDataUrl = null;
 }
 
-// ─── VIEW DISC ───────────────────────────────────────────
+// ── VIEW / DELETE ─────────────────────────────────────────
 function viewDisc(id) {
-  const d = collection.find(x=>x.id===id);
-  if (!d) return;
+  const d = collection.find(x=>x.id===id); if (!d) return;
   currentViewId = id;
   document.getElementById('view-title-h').textContent = d.title;
-  const typeClass = d.format==='DVD'?'dvd':d.format==='Blu-ray'?'bluray':'uhd';
+  const coverHtml = d.cover
+    ? `<div class="detail-cover-img"><img src="${d.cover}" alt="${esc(d.title)}"></div>`
+    : `<div class="detail-cover-img">🎬</div>`;
   document.getElementById('view-modal-body').innerHTML = `
-    <div class="detail-cover">
-      <div class="detail-cover-disc ${typeClass}"></div>
+    <div class="detail-layout">
+      ${coverHtml}
+      <div class="detail-right">
+        <div class="detail-fields">
+          <div class="detail-field"><label>Format</label><span>${esc(d.format)}</span></div>
+          <div class="detail-field"><label>Year</label><span>${d.year||'—'}</span></div>
+          <div class="detail-field"><label>Genre</label><span>${esc(d.genre||'—')}</span></div>
+          <div class="detail-field"><label>Director</label><span>${esc(d.director||'—')}</span></div>
+          <div class="detail-field"><label>Shelf Pos.</label><span>#${d.pos}</span></div>
+        </div>
+      </div>
     </div>
-    <div class="detail-fields">
-      <div class="detail-field"><label>Format</label><span>${d.format}</span></div>
-      <div class="detail-field"><label>Year</label><span>${d.year||'—'}</span></div>
-      <div class="detail-field"><label>Genre</label><span>${d.genre||'—'}</span></div>
-      <div class="detail-field"><label>Director</label><span>${d.director||'—'}</span></div>
-      <div class="detail-field"><label>Shelf Position</label><span>#${d.pos}</span></div>
-    </div>
-    ${d.notes ? `<div class="detail-notes">${d.notes}</div>` : ''}
-  `;
+    ${d.notes ? `<div class="detail-notes">${esc(d.notes)}</div>` : ''}`;
   openModal('view-modal');
 }
 
 function deleteDisc() {
   if (!currentViewId) return;
   const d = collection.find(x=>x.id===currentViewId);
+  if (!confirm(`Remove "${d.title}" from your vault?`)) return;
   collection = collection.filter(x=>x.id!==currentViewId);
-  save();
-  closeModal('view-modal');
-  renderCollection();
+  save(); closeModal('view-modal'); renderCollection();
   showToast('🗑', `"${d.title}" removed`);
   if (document.getElementById('instructions-panel').classList.contains('open')) buildInstructions();
 }
 
-// ─── SORT INSTRUCTIONS ───────────────────────────────────
+// ── SORT INSTRUCTIONS ─────────────────────────────────────
 function toggleSortInstructions() {
   const panel = document.getElementById('instructions-panel');
-  const isOpen = panel.classList.toggle('open');
-  document.getElementById('btn-sort').classList.toggle('active', isOpen);
-  if (isOpen) buildInstructions();
+  const open = panel.classList.toggle('open');
+  document.getElementById('btn-sort').classList.toggle('active', open);
+  if (open) buildInstructions();
 }
-
 function buildInstructions() {
   const body = document.getElementById('instructions-body');
-  if (collection.length === 0) {
-    body.innerHTML = `<div class="no-moves"><span>📀</span>Add some discs to generate sorting instructions.</div>`;
-    return;
-  }
-
-  // Current order (by pos), desired order (alphabetical by sortKey)
+  if (!collection.length) { body.innerHTML=`<div class="no-moves"><span>📀</span>Add some discs to generate sorting instructions.</div>`; return; }
   const current = [...collection].sort((a,b)=>a.pos-b.pos);
-  const desired = [...collection].sort((a,b)=>sortKey(a).localeCompare(sortKey(b)));
-
-  // Check if already sorted
-  const alreadySorted = current.every((d,i)=>d.id===desired[i].id);
-  if (alreadySorted) {
-    body.innerHTML = `<div class="no-moves"><span>✅</span>Your collection is already in perfect alphabetical order!</div>`;
-    return;
+  const desired  = [...collection].sort((a,b)=>sortKey(a).localeCompare(sortKey(b)));
+  if (current.every((d,i)=>d.id===desired[i].id)) { body.innerHTML=`<div class="no-moves"><span>✅</span>Your collection is already in perfect alphabetical order!</div>`; return; }
+  const steps=[], arr=current.map(d=>({...d}));
+  for(let i=1;i<arr.length;i++){
+    const key=arr[i]; let j=i-1;
+    if(sortKey(arr[j]).localeCompare(sortKey(key))<=0) continue;
+    while(j>=0&&sortKey(arr[j]).localeCompare(sortKey(key))>0){arr[j+1]=arr[j];j--;}
+    arr[j+1]=key;
+    steps.push({disc:key.title, from:i+1, to:j+2, left:j>=0?arr[j].title:null, right:arr[j+2]?arr[j+2].title:null});
   }
-
-  // Generate human-friendly move instructions using insertion sort logic
-  const steps = [];
-  const arr = current.map(d=>({...d}));
-
-  // Insertion sort — generates minimal swap instructions
-  for (let i = 1; i < arr.length; i++) {
-    const key = arr[i];
-    let j = i - 1;
-    if (sortKey(arr[j]).localeCompare(sortKey(key)) <= 0) continue;
-    while (j >= 0 && sortKey(arr[j]).localeCompare(sortKey(key)) > 0) {
-      arr[j+1] = arr[j];
-      j--;
-    }
-    arr[j+1] = key;
-    const fromPos = i + 1;
-    const toPos = j + 2;
-    const leftNeighbour = j >= 0 ? arr[j].title : null;
-    const rightNeighbour = arr[toPos] ? arr[toPos].title : null;
-    steps.push({ disc: key.title, from: fromPos, to: toPos, left: leftNeighbour, right: rightNeighbour });
-  }
-
-  if (steps.length === 0) {
-    body.innerHTML = `<div class="no-moves"><span>✅</span>Already sorted!</div>`;
-    return;
-  }
-
-  const intro = `<p style="font-size:0.85rem;color:var(--text-dim);margin-bottom:16px;line-height:1.5;">
-    Follow these <strong style="color:var(--amber)">${steps.length} move${steps.length!==1?'s':''}</strong> in order to alphabetically sort your collection with the fewest possible disc movements. Numbers refer to shelf positions (left to right).
-  </p>`;
-
-  const stepsHtml = steps.map((s,i) => {
-    let instruction = `Move <span class="disc-name">"${s.disc}"</span> from position <strong>#${s.from}</strong> to position <strong>#${s.to}</strong>`;
-    if (s.left && s.right) instruction += ` — place it between <span class="disc-name">"${s.left}"</span> and <span class="disc-name">"${s.right}"</span>`;
-    else if (s.left) instruction += ` — place it after <span class="disc-name">"${s.left}"</span> (end of shelf)`;
-    else instruction += ` — place it at the very beginning of the shelf`;
-    return `<div class="move-step" style="animation-delay:${i*0.04}s">
-      <div class="step-num">${i+1}</div>
-      <div class="step-text">${instruction}.</div>
-    </div>`;
+  if(!steps.length){body.innerHTML=`<div class="no-moves"><span>✅</span>Already sorted!</div>`;return;}
+  body.innerHTML = `<p style="font-size:0.82rem;color:var(--text-dim);margin-bottom:14px;line-height:1.5;">
+    Make these <strong style="color:var(--amber)">${steps.length} move${steps.length!==1?'s':''}</strong> in order — the fewest possible to reach full alphabetical order. Positions count left to right on the shelf.</p>`
+  + steps.map((s,i)=>{
+    let t=`Move <span class="dn">"${esc(s.disc)}"</span> from position <strong>#${s.from}</strong> to <strong>#${s.to}</strong>`;
+    if(s.left&&s.right) t+=` — place between <span class="dn">"${esc(s.left)}"</span> and <span class="dn">"${esc(s.right)}"</span>`;
+    else if(s.left)     t+=` — place after <span class="dn">"${esc(s.left)}"</span>`;
+    else                t+=` — place at the very start of the shelf`;
+    return `<div class="move-step" style="animation-delay:${i*0.04}s"><div class="step-num">${i+1}</div><div class="step-text">${t}.</div></div>`;
   }).join('');
-
-  body.innerHTML = intro + stepsHtml;
 }
 
-// ─── QR SCANNER ──────────────────────────────────────────
-function openQrModal() {
-  qrResult = '';
-  document.getElementById('qr-result').style.display='none';
-  document.getElementById('btn-use-qr').style.display='none';
-  openModal('qr-modal');
-}
+// ── BARCODE SCANNER ───────────────────────────────────────
+let barcodeReader = null;
 
-function closeQrModal() {
-  stopCamera();
-  closeModal('qr-modal');
+function openScanModal() {
+  pendingDisc = null;
+  document.getElementById('barcode-result').style.display = 'none';
+  document.getElementById('btn-use-barcode').style.display = 'none';
+  document.getElementById('lookup-status').textContent = '';
+  document.getElementById('lookup-status').className = 'lookup-status';
+  openModal('scan-modal');
 }
+function closeScanModal() { stopBarcodeScanner(); closeModal('scan-modal'); }
 
-async function startCamera() {
+async function startBarcodeScanner() {
   try {
-    qrStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-    const video = document.getElementById('qr-video');
-    video.srcObject = qrStream;
+    barcodeStream = await navigator.mediaDevices.getUserMedia({
+      video:{ facingMode:'environment', width:{ideal:1280}, height:{ideal:720} }
+    });
+    const video = document.getElementById('barcode-video');
+    video.srcObject = barcodeStream;
     video.style.display = 'block';
-    video.play();
+    await video.play();
+    document.getElementById('barcode-overlay').innerHTML =
+      `<div class="barcode-frame"><div class="barcode-scan-line"></div></div>`;
+    document.getElementById('btn-start-scan').style.display = 'none';
+    document.getElementById('btn-stop-scan').style.display  = 'flex';
 
-    // Show scanning frame
-    document.getElementById('qr-overlay').innerHTML = `
-      <div class="qr-frame">
-        <div class="qr-scan-line"></div>
-      </div>`;
-
-    document.getElementById('btn-start-cam').style.display = 'none';
-    document.getElementById('btn-stop-cam').style.display = 'flex';
-    qrScanning = true;
-    requestAnimationFrame(scanFrame);
+    // ZXing multi-format reader
+    const hints = new Map();
+    if (typeof ZXing !== 'undefined') {
+      hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+        ZXing.BarcodeFormat.EAN_13,
+        ZXing.BarcodeFormat.EAN_8,
+        ZXing.BarcodeFormat.UPC_A,
+        ZXing.BarcodeFormat.UPC_E
+      ]);
+      barcodeReader = new ZXing.BrowserMultiFormatReader(hints);
+    }
+    barcodeScanning = true;
+    scanBarcodeFrame();
   } catch(e) {
-    showToast('⚠️', 'Camera access denied or unavailable');
+    showToast('⚠️','Camera access denied or unavailable');
   }
 }
 
-function stopCamera() {
-  qrScanning = false;
-  if (qrStream) { qrStream.getTracks().forEach(t=>t.stop()); qrStream=null; }
-  const video = document.getElementById('qr-video');
+function scanBarcodeFrame() {
+  if (!barcodeScanning) return;
+  const video = document.getElementById('barcode-video');
+  if (video.readyState !== video.HAVE_ENOUGH_DATA) { requestAnimationFrame(scanBarcodeFrame); return; }
+  const c = document.createElement('canvas');
+  c.width = video.videoWidth; c.height = video.videoHeight;
+  c.getContext('2d').drawImage(video,0,0);
+  try {
+    const result = barcodeReader ? barcodeReader.decodeFromCanvas(c) : null;
+    if (result) { onBarcodeDetected(result.getText()); return; }
+  } catch(e) { /* still scanning */ }
+  requestAnimationFrame(scanBarcodeFrame);
+}
+
+function stopBarcodeScanner() {
+  barcodeScanning = false;
+  if (barcodeStream) { barcodeStream.getTracks().forEach(t=>t.stop()); barcodeStream=null; }
+  const video = document.getElementById('barcode-video');
   video.style.display='none';
-  document.getElementById('qr-overlay').innerHTML = `
-    <div class="qr-placeholder">
-      <div class="qr-icon">▣</div>
-      <p>Press <strong>Start Camera</strong> to begin scanning.<br>Point at a QR code on your disc case.</p>
-    </div>`;
-  document.getElementById('btn-start-cam').style.display='flex';
-  document.getElementById('btn-stop-cam').style.display='none';
+  document.getElementById('barcode-overlay').innerHTML=`<div class="barcode-placeholder"><div class="bc-icon">▥</div><p>Press <strong>Start Camera</strong> and point at the<br>barcode on your disc case spine or back.</p></div>`;
+  document.getElementById('btn-start-scan').style.display='flex';
+  document.getElementById('btn-stop-scan').style.display='none';
 }
 
-function scanFrame() {
-  if (!qrScanning) return;
-  const video = document.getElementById('qr-video');
-  if (video.readyState !== video.HAVE_ENOUGH_DATA) { requestAnimationFrame(scanFrame); return; }
+async function onBarcodeDetected(code) {
+  stopBarcodeScanner();
+  const res = document.getElementById('barcode-result');
+  res.textContent = '✓ Barcode: ' + code;
+  res.style.display = 'block';
+  showToast('📷','Barcode detected — looking up…');
+  await lookupBarcode(code);
+}
 
-  const canvas = document.createElement('canvas');
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(video, 0, 0);
-  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts:'dontInvert' });
+async function lookupBarcode(barcode) {
+  const status = document.getElementById('lookup-status');
+  status.textContent = '🔍 Looking up…'; status.className='lookup-status';
+  let title='', year=null, director='', cover=null;
 
-  if (code) {
-    qrResult = code.data;
-    const res = document.getElementById('qr-result');
-    res.textContent = '✓ Detected: ' + qrResult;
-    res.style.display = 'block';
-    document.getElementById('btn-use-qr').style.display = 'flex';
-    stopCamera();
-    showToast('📷', 'QR code detected!');
+  // Open Library (works well for books/some discs with ISBN-format barcodes)
+  try {
+    const r = await fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${barcode}&format=json&jscmd=data`,
+      {signal:AbortSignal.timeout(6000)});
+    const json = await r.json();
+    const entry = json[`ISBN:${barcode}`];
+    if (entry) {
+      title     = entry.title || '';
+      cover     = entry.cover?.large || entry.cover?.medium || null;
+      director  = entry.authors?.[0]?.name || '';
+      year      = parseInt(entry.publish_date) || null;
+    }
+  } catch(e){}
+
+  // Fallback: UPC Item DB (free, no key needed, CORS-friendly)
+  if (!title) {
+    try {
+      const r = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${barcode}`,
+        {signal:AbortSignal.timeout(6000)});
+      const json = await r.json();
+      if (json.items?.[0]) {
+        const item = json.items[0];
+        title = item.title || '';
+        if (item.images?.[0]) cover = item.images[0];
+      }
+    } catch(e){}
+  }
+
+  if (title) {
+    status.textContent = `✓ Found: ${title}`;
+    status.className = 'lookup-status found';
+    pendingDisc = { title, year, director, cover, notes:`Barcode: ${barcode}` };
   } else {
-    requestAnimationFrame(scanFrame);
+    status.textContent = `Not found in database — fill in the details manually.`;
+    status.className = 'lookup-status error';
+    pendingDisc = { title:'', notes:`Barcode: ${barcode}` };
   }
+  document.getElementById('btn-use-barcode').style.display='flex';
 }
 
-function manualQrEntry() {
-  const val = prompt('Enter disc title or QR code text manually:');
-  if (val) {
-    qrResult = val.trim();
-    const res = document.getElementById('qr-result');
-    res.textContent = '✓ Entered: ' + qrResult;
-    res.style.display = 'block';
-    document.getElementById('btn-use-qr').style.display = 'flex';
-  }
+function manualBarcodeEntry() {
+  const val = prompt('Enter barcode number (EAN-13 or UPC-A):');
+  if (val?.trim()) onBarcodeDetected(val.trim());
 }
+function useBarcodeResult() { closeScanModal(); openAddModal(pendingDisc || {}); }
 
-function useQrResult() {
-  closeQrModal();
-  openAddModal(qrResult);
-}
-
-// ─── MODALS ──────────────────────────────────────────────
+// ── MODALS ────────────────────────────────────────────────
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-// close on overlay click
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', e => {
-    if (e.target === overlay) {
-      if (overlay.id==='qr-modal') closeQrModal();
-      else closeModal(overlay.id);
-    }
+document.querySelectorAll('.modal-overlay').forEach(ov=>{
+  ov.addEventListener('click',e=>{
+    if(e.target!==ov) return;
+    if(ov.id==='scan-modal') closeScanModal(); else closeModal(ov.id);
   });
 });
 
-// ─── TOAST ───────────────────────────────────────────────
+// ── TOAST ─────────────────────────────────────────────────
 let toastTimer;
-function showToast(icon, msg) {
+function showToast(icon,msg){
   clearTimeout(toastTimer);
-  document.querySelector('.toast-icon').textContent = icon;
-  document.getElementById('toast-msg').textContent = msg;
-  const toast = document.getElementById('toast');
-  toast.classList.add('show');
-  toastTimer = setTimeout(()=>toast.classList.remove('show'), 3000);
+  document.querySelector('.toast-icon').textContent=icon;
+  document.getElementById('toast-msg').textContent=msg;
+  const t=document.getElementById('toast');
+  t.classList.add('show');
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3200);
 }
 
-// ─── INIT ─────────────────────────────────────────────────
+// ── INIT ──────────────────────────────────────────────────
 updateStats();
 renderCollection();
 </script>
